@@ -22,6 +22,17 @@ function SettingsPage() {
           <ArrowLeft className="size-4" /> {t("backToList")}
         </Link>
 
+        <section className="space-y-2 rounded-2xl border border-border bg-card p-4">
+          <Button variant="secondary" size="sm" className="w-full" asChild>
+            <Link to="/notification-settings">{t("notificationSettings")}</Link>
+          </Button>
+          {isAdmin ? (
+            <Button variant="secondary" size="sm" className="w-full" asChild>
+              <Link to="/admin-reminders">{t("manageReminders")}</Link>
+            </Button>
+          ) : null}
+        </section>
+
         <section className="rounded-2xl border border-border bg-card p-4">
           <h2 className="text-sm font-semibold">{t("language")}</h2>
           <div className="mt-3 flex gap-2">
