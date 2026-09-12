@@ -141,7 +141,7 @@ async function dispatch() {
 }
 
 async function handle({ request }: { request: Request }) {
-  const expected = process.env["REMINDER_CRON_TOKEN"];
+  const expected = process.env["REMINDER_CRON_TOKEN"] ?? process.env["LOVABLE_CRON_SECRET"];
   const header = request.headers.get("authorization") ?? "";
   if (!expected || header !== `Bearer ${expected}`) {
     return new Response("Unauthorized", { status: 401 });
