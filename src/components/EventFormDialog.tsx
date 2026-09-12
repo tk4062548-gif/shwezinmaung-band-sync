@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Plus, X } from "lucide-react";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -12,13 +11,22 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { ReminderPicker } from "@/components/ReminderPicker";
 import { useI18n } from "@/lib/i18n";
 import { useReminders, useSaveEvent, type BandEvent } from "@/lib/events";
+import { useNotificationSettings } from "@/lib/notifications";
+import { remindAtFor } from "@/lib/reminder-options";
 
-function toLocalInput(iso: string) {
-  const d = new Date(iso);
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+function pad(n: number) {
+  return String(n).padStart(2, "0");
+}
+
+function toDateInput(d: Date) {
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+function toTimeInput(d: Date) {
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
 export function EventFormDialog({
@@ -35,43 +43,58 @@ export function EventFormDialog({
   const { t } = useI18n();
   const save = useSaveEvent();
   const existingReminders = useReminders(event?.id);
+  const settings = useNotificationSettings();
 
   const [title, setTitle] = useState("");
-  const [startsAt, setStartsAt] = useState("");
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("19:00");
+  const [arriveTime, setArriveTime] = useState("");
   const [location, setLocation] = useState("");
   const [notes, setNotes] = useState("");
-  const [reminders, setReminders] = useState<string[]>([]);
+  const [offsets, setOffsets] = useState<number[]>([]);
 
   useEffect(() => {
     if (!open) return;
+    const base = event ? new Date(event.starts_at) : (defaultDate ?? new Date());
     setTitle(event?.title ?? "");
-    setStartsAt(
-      event ? toLocalInput(event.starts_at) : toLocalInput((defaultDate ?? new Date()).toISOString()),
-    );
+    setDate(toDateInput(base));
+    setTime(event ? toTimeInput(new Date(event.starts_at)) : "19:00");
+    setArriveTime(event?.arrive_at ? toTimeInput(new Date(event.arrive_at)) : "");
     setLocation(event?.location ?? "");
     setNotes(event?.notes ?? "");
-    setReminders([]);
-  }, [open, event, defaultDate]);
+    setOffsets(event ? [] : (settings.data?.default_offsets ?? [1440, 60]));
+  }, [open, event, defaultDate, settings.data]);
 
   useEffect(() => {
     if (open && event && existingReminders.data) {
-      setReminders(existingReminders.data.map((r) => toLocalInput(r.remind_at)));
+      setOffsets(
+        existingReminders.data
+          .map((r) => r.offset_minutes)
+          .filter((m): m is number => typeof m === "number")
+          .sort((a, b) => b - a),
+      );
     }
   }, [open, event, existingReminders.data]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!title.trim() || !startsAt) return;
+    if (!title.trim() || !date || !time) return;
+    const startsAt = new Date(`${date}T${time}`).toISOString();
+    const arriveAt = arriveTime ? new Date(`${date}T${arriveTime}`).toISOString() : null;
     try {
       await save.mutateAsync({
         ...(event ? { id: event.id } : {}),
         values: {
           title: title.trim(),
-          starts_at: new Date(startsAt).toISOString(),
+          starts_at: startsAt,
+          arrive_at: arriveAt,
           location: location.trim() || null,
           notes: notes.trim() || null,
         },
-        reminders: reminders.filter(Boolean).map((r) => new Date(r).toISOString()),
+        reminders: offsets.map((offset_minutes) => ({
+          offset_minutes,
+          remind_at: remindAtFor(startsAt, offset_minutes),
+        })),
       });
       toast.success(t("saved"));
       onOpenChange(false);
@@ -91,54 +114,53 @@ export function EventFormDialog({
             <Label htmlFor="title">{t("title")}</Label>
             <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} required />
           </div>
+
+          <div className="flex gap-2">
+            <div className="flex-1 space-y-1.5">
+              <Label htmlFor="date">{t("eventDate")}</Label>
+              <Input
+                id="date"
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                required
+              />
+            </div>
+            <div className="w-28 space-y-1.5">
+              <Label htmlFor="time">{t("eventTime")}</Label>
+              <Input
+                id="time"
+                type="time"
+                value={time}
+                onChange={(e) => setTime(e.target.value)}
+                required
+              />
+            </div>
+          </div>
+
           <div className="space-y-1.5">
-            <Label htmlFor="startsAt">{t("dateTime")}</Label>
+            <Label htmlFor="arrive">{t("arriveAt")}</Label>
             <Input
-              id="startsAt"
-              type="datetime-local"
-              value={startsAt}
-              onChange={(e) => setStartsAt(e.target.value)}
-              required
+              id="arrive"
+              type="time"
+              value={arriveTime}
+              onChange={(e) => setArriveTime(e.target.value)}
             />
           </div>
+
           <div className="space-y-1.5">
             <Label htmlFor="location">{t("location")}</Label>
             <Input id="location" value={location} onChange={(e) => setLocation(e.target.value)} />
           </div>
+
           <div className="space-y-1.5">
             <Label htmlFor="notes">{t("notes")}</Label>
             <Textarea id="notes" rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} />
           </div>
 
           <div className="space-y-2">
-            <Label>{t("extraReminders")}</Label>
-            {reminders.map((value, index) => (
-              <div key={index} className="flex gap-2">
-                <Input
-                  type="datetime-local"
-                  value={value}
-                  onChange={(e) =>
-                    setReminders((prev) => prev.map((r, i) => (i === index ? e.target.value : r)))
-                  }
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setReminders((prev) => prev.filter((_, i) => i !== index))}
-                >
-                  <X className="size-4" />
-                </Button>
-              </div>
-            ))}
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              onClick={() => setReminders((prev) => [...prev, startsAt])}
-            >
-              <Plus className="size-4" /> {t("addReminder")}
-            </Button>
+            <Label>{t("reminderTimes")}</Label>
+            <ReminderPicker value={offsets} onChange={setOffsets} />
           </div>
 
           <DialogFooter className="gap-2">

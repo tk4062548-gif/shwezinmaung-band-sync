@@ -14,27 +14,62 @@ export type Database = {
   }
   public: {
     Tables: {
+      event_recipients: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_recipients_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_reminders: {
         Row: {
           created_at: string
           event_id: string
           id: string
           label: string | null
+          offset_minutes: number | null
           remind_at: string
+          sent_at: string | null
         }
         Insert: {
           created_at?: string
           event_id: string
           id?: string
           label?: string | null
+          offset_minutes?: number | null
           remind_at: string
+          sent_at?: string | null
         }
         Update: {
           created_at?: string
           event_id?: string
           id?: string
           label?: string | null
+          offset_minutes?: number | null
           remind_at?: string
+          sent_at?: string | null
         }
         Relationships: [
           {
@@ -48,6 +83,7 @@ export type Database = {
       }
       events: {
         Row: {
+          arrive_at: string | null
           completed: boolean
           created_at: string
           created_by: string | null
@@ -59,6 +95,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          arrive_at?: string | null
           completed?: boolean
           created_at?: string
           created_by?: string | null
@@ -70,6 +107,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          arrive_at?: string | null
           completed?: boolean
           created_at?: string
           created_by?: string | null
@@ -81,6 +119,84 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      notification_settings: {
+        Row: {
+          created_at: string
+          default_offsets: number[]
+          notifications_enabled: boolean
+          push_enabled: boolean
+          sound_enabled: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          default_offsets?: number[]
+          notifications_enabled?: boolean
+          push_enabled?: boolean
+          sound_enabled?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          default_offsets?: number[]
+          notifications_enabled?: boolean
+          push_enabled?: boolean
+          sound_enabled?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          body: string
+          created_at: string
+          event_id: string | null
+          id: string
+          read_at: string | null
+          reminder_id: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          event_id?: string | null
+          id?: string
+          read_at?: string | null
+          reminder_id?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          event_id?: string | null
+          id?: string
+          read_at?: string | null
+          reminder_id?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_reminder_id_fkey"
+            columns: ["reminder_id"]
+            isOneToOne: false
+            referencedRelation: "event_reminders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -97,6 +213,33 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+        }
+        Relationships: []
+      }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          id: string
+          p256dh: string
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          p256dh: string
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          p256dh?: string
+          user_id?: string
         }
         Relationships: []
       }

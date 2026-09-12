@@ -2,6 +2,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { Music4, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { NotificationBell } from "@/components/NotificationBell";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -28,6 +29,7 @@ export function AppHeader() {
           </span>
           <span className="truncate text-sm font-semibold leading-tight">{t("appName")}</span>
         </Link>
+        {session ? <NotificationBell /> : null}
         <Button variant="ghost" size="icon" asChild aria-label={t("settings")}>
           <Link to="/settings">
             <Settings className="size-5" />
