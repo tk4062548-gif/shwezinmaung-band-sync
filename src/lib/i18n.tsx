@@ -10,6 +10,8 @@ const dict = {
     en: "One place for every show the band plays",
   },
   signIn: { mm: "အကောင့်ဝင်ရန်", en: "Sign in" },
+  continueWithGoogle: { mm: "Google ဖြင့် ဆက်လက်ဝင်ရန်", en: "Continue with Google" },
+  orUseEmail: { mm: "သို့မဟုတ် အီးမေးလ်ဖြင့်", en: "or use email" },
   signUp: { mm: "အကောင့်သစ်ဖွင့်ရန်", en: "Create account" },
   signOut: { mm: "ထွက်ရန်", en: "Sign out" },
   email: { mm: "အီးမေးလ်", en: "Email" },
