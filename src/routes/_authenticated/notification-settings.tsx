@@ -105,7 +105,7 @@ function NotificationSettingsPage() {
               variant="secondary"
               size="sm"
               onClick={async () => {
-                const result = await sendTestPush({ data: {} });
+                const result = await sendTestPush();
                 if (result.sent > 0) toast.success(t("testSent"));
                 else toast.error(t("noDevice"));
               }}

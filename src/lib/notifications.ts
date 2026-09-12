@@ -188,14 +188,16 @@ export function usePushRegistration() {
 
     const json = subscription.toJSON();
     const user = (await supabase.auth.getUser()).data.user;
-    if (!user || !json.keys) return "denied";
+    const p256dh = json.keys?.["p256dh"];
+    const auth = json.keys?.["auth"];
+    if (!user || !p256dh || !auth) return "denied";
 
     const { error } = await supabase.from("push_subscriptions").upsert(
       {
         user_id: user.id,
         endpoint: subscription.endpoint,
-        p256dh: json.keys.p256dh,
-        auth: json.keys.auth,
+        p256dh,
+        auth,
       },
       { onConflict: "endpoint" },
     );
