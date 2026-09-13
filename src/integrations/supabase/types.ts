@@ -269,6 +269,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      count_admins: { Args: never; Returns: number }
       ensure_my_role: {
         Args: never
         Returns: Database["public"]["Enums"]["app_role"]
