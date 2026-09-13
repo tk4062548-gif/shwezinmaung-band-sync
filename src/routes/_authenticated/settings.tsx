@@ -27,9 +27,14 @@ function SettingsPage() {
             <Link to="/notification-settings">{t("notificationSettings")}</Link>
           </Button>
           {isAdmin ? (
-            <Button variant="secondary" size="sm" className="w-full" asChild>
-              <Link to="/admin-reminders">{t("manageReminders")}</Link>
-            </Button>
+            <>
+              <Button variant="secondary" size="sm" className="w-full" asChild>
+                <Link to="/admin-reminders">{t("manageReminders")}</Link>
+              </Button>
+              <Button variant="secondary" size="sm" className="w-full" asChild>
+                <Link to="/members">{t("manageMembers")}</Link>
+              </Button>
+            </>
           ) : null}
         </section>
 

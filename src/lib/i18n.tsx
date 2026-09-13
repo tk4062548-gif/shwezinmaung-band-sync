@@ -126,6 +126,21 @@ const dict = {
     mm: "ဤအကောင့်တွင် push ဖွင့်ထားသည့် ဖုန်း မရှိပါ။",
     en: "No device has push enabled for this account yet.",
   },
+  manageMembers: { mm: "အဖွဲ့ဝင် စံခြင်း", en: "Manage members" },
+  manageMembersHint: {
+    mm: "အဖွဲ့ဝင်များကို အကြီးအကဲ (စီမံခွင့်) သို့မဟုတ် ကြည့်ရုံအဖွဲ့ဝင် အဖြစ် ပြောင်းလဲနိုင်သည်။",
+    en: "Promote members to admin or set them back to view-only.",
+  },
+  makeAdmin: { mm: "အကြီးအကဲ ခန့်ရန်", en: "Make admin" },
+  makeViewer: { mm: "ကြည့်ရုံသို့ ပြောင်းရန်", en: "Make viewer" },
+  adminShort: { mm: "အကြီးအကဲ", en: "Admin" },
+  viewerShort: { mm: "အဖွဲ့ဝင်", en: "Viewer" },
+  unnamedMember: { mm: "အမည်မရှိ အဖွဲ့ဝင်", en: "Unnamed member" },
+  you: { mm: "သင်", en: "you" },
+  lastAdminHint: {
+    mm: "နောက်ဆုံး အကြီးအကဲကို ပြောင်းလို့ မရပါ။ အခြားတစ်ဦးကို အကြီးအကဲ ခန့်ပြီးမှ ပြောင်းပါ။",
+    en: "The last admin cannot be changed. Make someone else admin first.",
+  },
 } as const;
 
 export type TKey = keyof typeof dict;
