@@ -30,6 +30,9 @@ function SettingsPage() {
             <Button variant="secondary" size="sm" className="w-full" asChild>
               <Link to="/admin-reminders">{t("manageReminders")}</Link>
             </Button>
+            <Button variant="secondary" size="sm" className="w-full" asChild>
+              <Link to="/members">{t("manageMembers")}</Link>
+            </Button>
           ) : null}
         </section>
 
